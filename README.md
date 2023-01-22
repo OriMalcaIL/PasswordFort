@@ -1,2 +1,2 @@
 # PasswordFort
-A not well written program that will keep your passwords
+A well not written software to keep your passwords
