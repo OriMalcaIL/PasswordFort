@@ -12,30 +12,31 @@ class Encryption:
         self.key = key
 
     def encrypt_password(self, password) -> bytes:
-        iv = self.create_iv()
-        cipher = self.create_cipher(iv)
-        cipher_password = cipher.encrypt(self._pad(password))
-        return base64.b64encode(iv + cipher_password)
+        init_vector = self.create_init_vector()
 
-    def create_cipher(self, iv: bytes) -> AES:
+        cipher = self.create_cipher(init_vector)
+        cipher_password = cipher.encrypt(self._pad(password))
+
+        return base64.b64encode(init_vector + cipher_password)
+
+    def create_cipher(self, init_vector: bytes) -> AES:
         """
         Create and return a new AES cipher object with the given IV
-        :param iv: bytes - the initialization vector to be used with the cipher
+        :param init_vector: bytes - the initialization vector to be used with the cipher
         :return: an AES cipher object
         """
-        # Create a new AES cipher object with the key, mode and IV
-        return AES.new(self.key, AES.MODE_CBC, iv)
+        return AES.new(self.key, AES.MODE_CBC, init_vector)
 
     @staticmethod
-    def create_iv() -> bytes:
+    def create_init_vector() -> bytes:
         return get_random_bytes(AES.block_size)
 
     @staticmethod
     def _pad(data: str) -> bytes:
         """
-        Pad the data to a multiple of AES block size
+        Filling the string with a padding
         :param data: str - The data to be padded
-        :return: bytes - The padded data
+        :return: bytes that contain the data and the padding
         """
         # Calculate the number of padding bytes needed
         padding_size = AES.block_size - (len(data) % AES.block_size)
